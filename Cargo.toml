@@ -1,0 +1,9 @@
+[package]
+name = "rapier3d_stress_test1"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+bevy = "0.15.0"
+bevy_rapier3d = { version = "*", features = [ "simd-stable", "debug-render-3d" ] }
+
