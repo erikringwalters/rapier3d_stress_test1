@@ -1,3 +1,5 @@
+use std::time::Duration;
+
 use bevy::{
     asset::RenderAssetUsages,
     color::palettes::css,
@@ -8,6 +10,10 @@ use bevy::{
     winit::{UpdateMode, WinitSettings},
 };
 use bevy_rapier3d::prelude::*;
+
+use wasm_thread as thread;
+
+
 // use std::time::Duration;
 
 // Amount of cubes to spawn (^3)
@@ -75,6 +81,14 @@ fn setup(
     mut images: ResMut<Assets<Image>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
+
+    thread::spawn(|| {
+        for i in 1..3 {
+            println!("hi number {} from the spawned thread {:?}!", i, thread::current().id());
+            thread::sleep(Duration::from_millis(1));
+        }
+    });
+    
     // let capsule_radius = 0.5;
     // let capsule_half_length = 0.5;
     // let capsule_length = capsule_half_length * 2.0;
@@ -144,7 +158,7 @@ fn setup(
                 let ball = commands
                     .spawn(RigidBody::Dynamic)
                     .insert(Collider::cuboid(cube_half_size, cube_half_size, cube_half_size))
-                    .insert(Restitution::coefficient(0.4))
+                    .insert(Restitution::coefficient(0.9))
                     .insert(Transform::from_xyz(
                         i as f32 + cube_half_size - (CUBE_AXIS_AMOUNT as f32 / 2.0),
                         j as f32 + starting_position_offset,
