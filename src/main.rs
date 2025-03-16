@@ -1,17 +1,13 @@
-use std::time::Duration;
-
 use bevy::{
     asset::RenderAssetUsages,
-    color::palettes::css,
     diagnostic::{FrameTimeDiagnosticsPlugin, LogDiagnosticsPlugin},
     prelude::*,
     render::render_resource::{Extent3d, TextureDimension, TextureFormat},
     window::PresentMode,
-    winit::{UpdateMode, WinitSettings},
 };
 use bevy_rapier3d::prelude::*;
 
-use wasm_thread as thread;
+// use wasm_thread as thread;
 
 
 // use std::time::Duration;
@@ -53,10 +49,6 @@ pub struct PlayerController {
 fn main() {
     App::new()
         .insert_resource(Time::<Fixed>::from_hz(PHYSICS_HZ))
-        .insert_resource(WinitSettings {
-            focused_mode: UpdateMode::Continuous,
-            unfocused_mode: UpdateMode::Continuous,
-        })
         .add_plugins((
             LogDiagnosticsPlugin::default(),
             FrameTimeDiagnosticsPlugin,
@@ -82,13 +74,6 @@ fn setup(
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
 
-    thread::spawn(|| {
-        for i in 1..3 {
-            println!("hi number {} from the spawned thread {:?}!", i, thread::current().id());
-            thread::sleep(Duration::from_millis(1));
-        }
-    });
-    
     // let capsule_radius = 0.5;
     // let capsule_half_length = 0.5;
     // let capsule_length = capsule_half_length * 2.0;
@@ -131,10 +116,12 @@ fn setup(
 
     // Floor
     let floor = commands
-        .spawn(RigidBody::Fixed)
-        .insert(Collider::cylinder(0.5, FLOOR_RADIUS))
-        .insert(Restitution::coefficient(0.1))
-        .insert(Transform::from_xyz(0.0, 0.0, 0.0))
+        .spawn((
+            RigidBody::Fixed,
+            Collider::cylinder(0.5, FLOOR_RADIUS),
+            Restitution::coefficient(0.1),
+            Transform::from_xyz(0.0, 0.0, 0.0)
+        ))
         .id();
 
     let floor_mesh = commands
@@ -156,13 +143,15 @@ fn setup(
         for j in 0..CUBE_AXIS_AMOUNT {
             for k in 0..CUBE_AXIS_AMOUNT {
                 let ball = commands
-                    .spawn(RigidBody::Dynamic)
-                    .insert(Collider::cuboid(cube_half_size, cube_half_size, cube_half_size))
-                    .insert(Restitution::coefficient(0.9))
-                    .insert(Transform::from_xyz(
-                        i as f32 + cube_half_size - (CUBE_AXIS_AMOUNT as f32 / 2.0),
-                        j as f32 + starting_position_offset,
-                        k as f32 + starting_position_offset / 2.0,
+                    .spawn((
+                        RigidBody::Dynamic,
+                        Collider::cuboid(cube_half_size, cube_half_size, cube_half_size),
+                        Restitution::coefficient(0.9),
+                        Transform::from_xyz(
+                            i as f32 + cube_half_size - (CUBE_AXIS_AMOUNT as f32 / 2.0),
+                            j as f32 + starting_position_offset,
+                            k as f32 + starting_position_offset / 2.0,
+                        )
                     ))
                     .id();
                 let ball_mesh = commands
@@ -174,9 +163,8 @@ fn setup(
                                 z: cube_half_size,
                             },
                         })),
-                        MeshMaterial3d(materials.add(Color::from(
-                            css::SANDY_BROWN
-    
+                        MeshMaterial3d(materials.add(
+                            Color::srgba_u8(255, 102, 0, 255)
                         //     Srgba {
                         //     red: i as f32 * color_step,
                         //     green: j as f32 * color_step,
@@ -184,7 +172,7 @@ fn setup(
                         //     alpha: 1.0,
                         // }
                     ))),
-                    ))
+                    )
                     .id();
 
                 commands.entity(ball).add_child(ball_mesh);
@@ -197,8 +185,14 @@ fn uv_debug_texture() -> Image {
     const TEXTURE_SIZE: usize = 8;
 
     let mut palette: [u8; 32] = [
-        255, 102, 159, 255, 255, 159, 102, 255, 236, 255, 102, 255, 121, 255, 102, 255, 102, 255,
-        198, 255, 102, 198, 255, 255, 121, 102, 255, 255, 236, 102, 255, 255,
+        255, 102, 159, 255,
+        255, 159, 102, 255,
+        236, 255, 102, 255,
+        121, 255, 102, 255,
+        102, 255, 198, 255, 
+        102, 198, 255, 255, 
+        121, 102, 255, 255, 
+        236, 102, 255, 255,
     ];
 
     let mut texture_data = [0; TEXTURE_SIZE * TEXTURE_SIZE * 4];
