@@ -146,7 +146,7 @@ fn setup(
                     .spawn((
                         RigidBody::Dynamic,
                         Collider::cuboid(cube_half_size, cube_half_size, cube_half_size),
-                        Restitution::coefficient(0.9),
+                        Restitution::coefficient(0.5),
                         Transform::from_xyz(
                             i as f32 + cube_half_size - (CUBE_AXIS_AMOUNT as f32 / 2.0),
                             j as f32 + starting_position_offset,

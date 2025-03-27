@@ -4,7 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = "0.15.0"
+bevy = { version = "0.15.3", features = [ "webgl2" ] }
 bevy_rapier3d = { version = "*", features = [ "simd-stable", "debug-render-3d" ] }
-# wasm_thread = "*"
 
+[build]
+target = "index.html"
